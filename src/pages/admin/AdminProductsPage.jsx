@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import api, { apiErrorMessage } from '../../lib/api';
+import { invalidateCatalogCache } from '../../hooks/useCatalog';
 import {
   AdminNotice,
   AdminPageError,
@@ -464,6 +465,7 @@ const AdminProductsPage = () => {
         : await api.post('/admin/products', payload);
 
       window.localStorage.removeItem(draftKey);
+      invalidateCatalogCache();
       syncEditorFromProduct(response.data, {
         draftLabel: 'Saved and synced with live product',
         focus: 'review',
@@ -604,6 +606,7 @@ const AdminProductsPage = () => {
           onDeleteProduct={async (id) => {
             try {
               await api.delete(`/admin/products/${id}`);
+              invalidateCatalogCache();
               await loadData();
               setConfirmDeleteId(null);
               showToast('Product removed successfully');

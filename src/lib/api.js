@@ -1,8 +1,24 @@
 import axios from 'axios';
 import { clearAdminSession, getAdminSession } from '../utils/adminSession';
 
+const normalizeBaseUrl = (value) => value?.replace(/\/+$/, '') || '';
+
+const resolveApiBaseUrl = () => {
+  const configuredBaseUrl = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL);
+  if (configuredBaseUrl) {
+    return configuredBaseUrl;
+  }
+
+  if (import.meta.env.DEV && typeof window !== 'undefined') {
+    return `${window.location.protocol}//${window.location.hostname}:8080`;
+  }
+
+  return '/api';
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
+  baseURL: resolveApiBaseUrl(),
+  timeout: 15000,
 });
 
 api.interceptors.request.use((config) => {

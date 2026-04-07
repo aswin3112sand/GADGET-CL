@@ -5,9 +5,11 @@ import com.ecommerce.dto.ProductResponse;
 import com.ecommerce.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.List;
 
 @RestController
@@ -18,12 +20,18 @@ public class ProductController {
 
     @GetMapping("/products")
     public ResponseEntity<List<ProductResponse>> getProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(30)).cachePublic())
+                .header("CDN-Cache-Control", "public, max-age=30")
+                .body(productService.getAllProducts());
     }
 
     @GetMapping("/products/{id}")
     public ResponseEntity<ProductResponse> getProduct(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.getProduct(id));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(30)).cachePublic())
+                .header("CDN-Cache-Control", "public, max-age=30")
+                .body(productService.getProduct(id));
     }
 
     @PostMapping("/admin/products")

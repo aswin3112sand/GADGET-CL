@@ -5,9 +5,11 @@ import com.ecommerce.dto.SectionResponse;
 import com.ecommerce.service.SectionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.List;
 
 @RestController
@@ -18,7 +20,10 @@ public class SectionController {
 
     @GetMapping("/sections")
     public ResponseEntity<List<SectionResponse>> getSections() {
-        return ResponseEntity.ok(sectionService.getAllSections());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(30)).cachePublic())
+                .header("CDN-Cache-Control", "public, max-age=30")
+                .body(sectionService.getAllSections());
     }
 
     @PostMapping("/admin/sections")

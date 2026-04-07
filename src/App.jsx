@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import {
   BrowserRouter,
   Navigate,
@@ -12,27 +12,29 @@ import Navbar from './components/Navbar';
 import CartDrawer from './components/CartDrawer';
 import CartIcon from './components/CartIcon';
 import Footer from './components/Footer';
+import { PageLoader } from './components/PageFeedback';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import AdminLayout from './components/admin/AdminLayout';
 import HomePage from './pages/HomePage';
-import ProductsPage from './pages/ProductsPage';
-import CategoriesPage from './pages/CategoriesPage';
-import CategoryPage from './pages/CategoryPage';
-import ProductDetailsPage from './pages/ProductDetailsPage';
-import CartPage from './pages/CartPage';
-import CheckoutPage from './pages/CheckoutPage';
-import CheckoutSuccessPage from './pages/CheckoutSuccessPage';
-import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
-import ReviewsPage from './pages/ReviewsPage';
-import OffersPage from './pages/OffersPage';
-import AdminLoginPage from './pages/admin/AdminLoginPage';
-import AdminDashboardPage from './pages/admin/AdminDashboardPage';
-import AdminSectionsPage from './pages/admin/AdminSectionsPage';
-import AdminProductsPage from './pages/admin/AdminProductsPage';
-import AdminOrdersPage from './pages/admin/AdminOrdersPage';
-import AdminCustomersPage from './pages/admin/AdminCustomersPage';
-import AdminSecurityPage from './pages/admin/AdminSecurityPage';
+
+const ProductsPage = lazy(() => import('./pages/ProductsPage'));
+const CategoriesPage = lazy(() => import('./pages/CategoriesPage'));
+const CategoryPage = lazy(() => import('./pages/CategoryPage'));
+const ProductDetailsPage = lazy(() => import('./pages/ProductDetailsPage'));
+const CartPage = lazy(() => import('./pages/CartPage'));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const CheckoutSuccessPage = lazy(() => import('./pages/CheckoutSuccessPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+const ReviewsPage = lazy(() => import('./pages/ReviewsPage'));
+const OffersPage = lazy(() => import('./pages/OffersPage'));
+const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
+const AdminSectionsPage = lazy(() => import('./pages/admin/AdminSectionsPage'));
+const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
+const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
+const AdminCustomersPage = lazy(() => import('./pages/admin/AdminCustomersPage'));
+const AdminSecurityPage = lazy(() => import('./pages/admin/AdminSecurityPage'));
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -43,6 +45,20 @@ const ScrollToTop = () => {
 
   return null;
 };
+
+const SuspensePage = ({ children, title = 'Loading page', subtitle = 'Preparing the next view.' }) => (
+  <Suspense
+    fallback={(
+      <main className="page-shell px-4 py-28 md:px-8 lg:px-16">
+        <div className="mx-auto max-w-7xl">
+          <PageLoader title={title} subtitle={subtitle} />
+        </div>
+      </main>
+    )}
+  >
+    {children}
+  </Suspense>
+);
 
 const AppShell = () => {
   const location = useLocation();
@@ -86,48 +102,185 @@ const AppShell = () => {
 
       <Routes>
         <Route path="/" element={<HomePage addToCart={addToCart} />} />
-        <Route path="/products" element={<ProductsPage addToCart={addToCart} />} />
-        <Route path="/categories" element={<CategoriesPage />} />
-        <Route path="/category/:slug" element={<CategoryPage addToCart={addToCart} />} />
-        <Route path="/product/:id" element={<ProductDetailsPage addToCart={addToCart} />} />
-        <Route path="/offers" element={<OffersPage addToCart={addToCart} />} />
+        <Route
+          path="/products"
+          element={(
+            <SuspensePage title="Loading products" subtitle="Preparing the live catalog.">
+              <ProductsPage addToCart={addToCart} />
+            </SuspensePage>
+          )}
+        />
+        <Route
+          path="/categories"
+          element={(
+            <SuspensePage title="Loading categories" subtitle="Getting the storefront sections ready.">
+              <CategoriesPage />
+            </SuspensePage>
+          )}
+        />
+        <Route
+          path="/category/:slug"
+          element={(
+            <SuspensePage title="Loading category" subtitle="Preparing the filtered storefront view.">
+              <CategoryPage addToCart={addToCart} />
+            </SuspensePage>
+          )}
+        />
+        <Route
+          path="/product/:id"
+          element={(
+            <SuspensePage title="Loading product" subtitle="Fetching the full product view.">
+              <ProductDetailsPage addToCart={addToCart} />
+            </SuspensePage>
+          )}
+        />
+        <Route
+          path="/offers"
+          element={(
+            <SuspensePage title="Loading offers" subtitle="Preparing the current spotlight picks.">
+              <OffersPage addToCart={addToCart} />
+            </SuspensePage>
+          )}
+        />
         <Route
           path="/cart"
           element={(
-            <CartPage
-              cart={cart}
-              updateQuantity={updateQuantity}
-              removeFromCart={removeFromCart}
-              totalPrice={totalPrice}
-            />
+            <SuspensePage title="Loading cart" subtitle="Restoring your selected items.">
+              <CartPage
+                cart={cart}
+                updateQuantity={updateQuantity}
+                removeFromCart={removeFromCart}
+                totalPrice={totalPrice}
+              />
+            </SuspensePage>
           )}
         />
         <Route
           path="/checkout"
           element={(
-            <CheckoutPage
-              cart={cart}
-              totalPrice={totalPrice}
-              clearCart={clearCart}
-            />
+            <SuspensePage title="Loading checkout" subtitle="Preparing the secure payment flow.">
+              <CheckoutPage
+                cart={cart}
+                totalPrice={totalPrice}
+                clearCart={clearCart}
+              />
+            </SuspensePage>
           )}
         />
-        <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
-        <Route path="/reviews" element={<ReviewsPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
+        <Route
+          path="/checkout/success"
+          element={(
+            <SuspensePage title="Loading receipt" subtitle="Finalizing your order summary.">
+              <CheckoutSuccessPage />
+            </SuspensePage>
+          )}
+        />
+        <Route
+          path="/reviews"
+          element={(
+            <SuspensePage title="Loading reviews" subtitle="Preparing customer feedback.">
+              <ReviewsPage />
+            </SuspensePage>
+          )}
+        />
+        <Route
+          path="/about"
+          element={(
+            <SuspensePage title="Loading about page" subtitle="Preparing the brand story.">
+              <AboutPage />
+            </SuspensePage>
+          )}
+        />
+        <Route
+          path="/contact"
+          element={(
+            <SuspensePage title="Loading contact page" subtitle="Preparing support and contact details.">
+              <ContactPage />
+            </SuspensePage>
+          )}
+        />
 
-        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route
+          path="/admin/login"
+          element={(
+            <SuspensePage title="Loading admin login" subtitle="Preparing the admin sign-in flow.">
+              <AdminLoginPage />
+            </SuspensePage>
+          )}
+        />
         <Route element={<ProtectedAdminRoute />}>
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboardPage />} />
-            <Route path="sections" element={<AdminSectionsPage />} />
-            <Route path="products" element={<AdminProductsPage />} />
-            <Route path="products/new" element={<AdminProductsPage />} />
-            <Route path="products/:productId/edit" element={<AdminProductsPage />} />
-            <Route path="orders" element={<AdminOrdersPage />} />
-            <Route path="customers" element={<AdminCustomersPage />} />
-            <Route path="security" element={<AdminSecurityPage />} />
+          <Route
+            path="/admin"
+            element={(
+              <SuspensePage title="Loading admin workspace" subtitle="Preparing the management console.">
+                <AdminLayout />
+              </SuspensePage>
+            )}
+          >
+            <Route
+              index
+              element={(
+                <SuspensePage title="Loading dashboard" subtitle="Preparing the live admin overview.">
+                  <AdminDashboardPage />
+                </SuspensePage>
+              )}
+            />
+            <Route
+              path="sections"
+              element={(
+                <SuspensePage title="Loading sections" subtitle="Preparing the catalog structure workspace.">
+                  <AdminSectionsPage />
+                </SuspensePage>
+              )}
+            />
+            <Route
+              path="products"
+              element={(
+                <SuspensePage title="Loading products" subtitle="Preparing guided product workflows.">
+                  <AdminProductsPage />
+                </SuspensePage>
+              )}
+            />
+            <Route
+              path="products/new"
+              element={(
+                <SuspensePage title="Loading product editor" subtitle="Preparing a new product workflow.">
+                  <AdminProductsPage />
+                </SuspensePage>
+              )}
+            />
+            <Route
+              path="products/:productId/edit"
+              element={(
+                <SuspensePage title="Loading product editor" subtitle="Preparing the live product workflow.">
+                  <AdminProductsPage />
+                </SuspensePage>
+              )}
+            />
+            <Route
+              path="orders"
+              element={(
+                <SuspensePage title="Loading orders" subtitle="Preparing the order management view.">
+                  <AdminOrdersPage />
+                </SuspensePage>
+              )}
+            />
+            <Route
+              path="customers"
+              element={(
+                <SuspensePage title="Loading customers" subtitle="Preparing the customer workspace.">
+                  <AdminCustomersPage />
+                </SuspensePage>
+              )}
+            />
+            <Route
+              path="security"
+              element={(
+                <SuspensePage title="Loading security" subtitle="Preparing the admin security controls.">
+                  <AdminSecurityPage />
+                </SuspensePage>
+              )}
+            />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Route>
         </Route>

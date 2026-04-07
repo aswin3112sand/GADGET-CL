@@ -2,6 +2,50 @@ import { useEffect, useMemo, useState } from 'react';
 import api, { apiErrorMessage } from '../lib/api';
 import { enrichSections, slugifySectionName } from '../utils/catalog';
 
+const CATALOG_CACHE_TTL_MS = 30000;
+
+let catalogCache = null;
+let catalogRequest = null;
+
+export const invalidateCatalogCache = () => {
+  catalogCache = null;
+};
+
+const readCatalog = async () => {
+  const now = Date.now();
+  if (catalogCache && now - catalogCache.timestamp < CATALOG_CACHE_TTL_MS) {
+    return catalogCache.data;
+  }
+
+  if (catalogRequest) {
+    return catalogRequest;
+  }
+
+  catalogRequest = Promise.all([
+    api.get('/sections'),
+    api.get('/products'),
+  ])
+    .then(([sectionsResponse, productsResponse]) => {
+      const nextProducts = productsResponse.data;
+      const data = {
+        products: nextProducts,
+        sections: enrichSections(sectionsResponse.data, nextProducts),
+      };
+
+      catalogCache = {
+        data,
+        timestamp: Date.now(),
+      };
+
+      return data;
+    })
+    .finally(() => {
+      catalogRequest = null;
+    });
+
+  return catalogRequest;
+};
+
 export const useCatalogData = () => {
   const [sections, setSections] = useState([]);
   const [products, setProducts] = useState([]);
@@ -16,18 +60,14 @@ export const useCatalogData = () => {
       setError('');
 
       try {
-        const [sectionsResponse, productsResponse] = await Promise.all([
-          api.get('/sections'),
-          api.get('/products'),
-        ]);
+        const catalog = await readCatalog();
 
         if (!active) {
           return;
         }
 
-        const nextProducts = productsResponse.data;
-        setProducts(nextProducts);
-        setSections(enrichSections(sectionsResponse.data, nextProducts));
+        setProducts(catalog.products);
+        setSections(catalog.sections);
       } catch (loadError) {
         if (active) {
           setError(apiErrorMessage(loadError, 'Unable to load catalog data.'));

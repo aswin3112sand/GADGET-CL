@@ -75,7 +75,7 @@ const HomePage = ({ addToCart }) => {
             />
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {topSections.map((section) => (
+              {topSections.map((section, index) => (
                 <Link
                   key={section.id}
                   to={`/category/${section.slug}`}
@@ -85,6 +85,8 @@ const HomePage = ({ addToCart }) => {
                     <img
                       src={section.image}
                       alt={section.name}
+                      loading={index < 2 ? 'eager' : 'lazy'}
+                      decoding="async"
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,17,13,0.05)_0%,rgba(23,17,13,0.45)_100%)]" />
@@ -173,11 +175,13 @@ const HomePage = ({ addToCart }) => {
               >
                 <div className="grid gap-0 md:grid-cols-[0.94fr,1.06fr]">
                   <div className="relative min-h-[20rem] overflow-hidden">
-                    <img
-                      src={leadOffer.imageUrl || FALLBACK_PRODUCT_IMAGE}
-                      alt={leadOffer.name}
-                      className="h-full w-full object-cover"
-                    />
+                        <img
+                          src={leadOffer.imageUrl || FALLBACK_PRODUCT_IMAGE}
+                          alt={leadOffer.name}
+                          decoding="async"
+                          fetchpriority="high"
+                          className="h-full w-full object-cover"
+                        />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,17,13,0.08)_0%,rgba(23,17,13,0.52)_100%)]" />
                   </div>
 
@@ -250,6 +254,8 @@ const HomePage = ({ addToCart }) => {
                         <img
                           src={product.imageUrl || FALLBACK_PRODUCT_IMAGE}
                           alt={product.name}
+                          loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-cover"
                         />
                       </div>

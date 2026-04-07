@@ -145,7 +145,7 @@ const HeroSection = () => {
         style={{ backgroundColor: 'rgba(86, 166, 255, 0.2)' }}
       />
 
-      <div className="relative z-10 mx-auto grid min-h-screen max-w-7xl items-center gap-12 px-6 pb-16 pt-28 md:px-10 lg:grid-cols-[minmax(0,0.58fr)_minmax(0,0.42fr)] lg:gap-14 lg:px-12 xl:gap-20">
+      <div className="relative z-10 mx-auto grid min-h-[calc(100svh-3rem)] max-w-7xl items-center gap-12 px-5 pb-14 pt-24 sm:px-6 sm:pt-28 md:px-10 lg:min-h-screen lg:grid-cols-[minmax(0,0.58fr)_minmax(0,0.42fr)] lg:gap-14 lg:px-12 xl:gap-20">
         <motion.div
           initial="hidden"
           animate="visible"
@@ -159,7 +159,7 @@ const HeroSection = () => {
 
           <motion.div variants={revealItem}>
             <div className="mb-5 h-px w-24 bg-[linear-gradient(90deg,rgba(49,93,255,0),rgba(49,93,255,0.7),rgba(49,93,255,0))]" />
-            <h1 className="font-display text-[clamp(3.9rem,11vw,7.2rem)] font-semibold uppercase leading-[0.84] tracking-[0.1em] text-[#08101d] [text-shadow:0_16px_40px_rgba(15,23,42,0.06)]">
+            <h1 className="font-display text-[clamp(3rem,17vw,7.2rem)] font-semibold uppercase leading-[0.84] tracking-[0.08em] text-[#08101d] [text-shadow:0_16px_40px_rgba(15,23,42,0.06)] sm:text-[clamp(3.5rem,12vw,7.2rem)]">
               Gadget69
             </h1>
           </motion.div>
@@ -185,11 +185,11 @@ const HeroSection = () => {
           </motion.div>
 
           <motion.div variants={revealItem} className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <a href="#products" className="btn-primary group min-w-[220px]">
+            <a href="#products" className="btn-primary group min-w-0 sm:min-w-[220px]">
               Explore Collection
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </a>
-            <a href="#offers" className="btn-ghost group min-w-[220px]">
+            <a href="#offers" className="btn-ghost group min-w-0 sm:min-w-[220px]">
               View Premium Picks
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </a>
@@ -221,7 +221,7 @@ const HeroSection = () => {
               rotateY: springTiltY,
               transformPerspective: 1400,
             } : undefined}
-            className="group relative block w-[210px] max-w-full bg-transparent text-left isolate [transform-style:preserve-3d] sm:w-[250px] md:w-[300px] lg:w-[340px] xl:w-[390px]"
+            className="group relative block w-[min(82vw,390px)] max-w-full bg-transparent text-left isolate [transform-style:preserve-3d] sm:w-[250px] md:w-[300px] lg:w-[340px] xl:w-[390px]"
             aria-label="Toggle premium product showcase mode"
           >
             <motion.div
@@ -359,28 +359,39 @@ const HeroSection = () => {
 
                 <motion.div
                   initial={false}
-                  animate={assetLoaded ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.94, y: 10 }}
-                  transition={{ duration: 0.65, ease: 'easeOut' }}
-                  className="h-full w-full"
-                  style={{ x: springImageX, y: springImageY }}
-                >
-                  <motion.img
-                    src={HEADPHONES_IMAGE}
-                    alt="Gadget69 hero headphones presented as a premium studio-lit product object"
-                    loading="eager"
-                    fetchPriority="high"
-                    onLoad={() => setAssetLoaded(true)}
-                    onError={() => setAssetLoaded(true)}
-                    className="pointer-events-none block h-full w-full object-contain"
-                    animate={shouldReduceMotion ? undefined : {
+                  animate={assetLoaded
+                    ? {
+                      opacity: 1,
+                      scale: 1,
                       y: sonicMode ? [0, -4, 0] : [0, -6, 0],
                       rotateZ: sonicMode ? [0, 1.2, 0, -1.2, 0] : [0, 0.8, 0, -0.8, 0],
+                    }
+                    : {
+                      opacity: 0,
+                      scale: 0.94,
+                      y: 10,
                     }}
-                    transition={shouldReduceMotion ? undefined : {
+                  transition={assetLoaded
+                    ? {
                       duration: sonicMode ? 3.6 : 5.2,
                       repeat: Infinity,
                       ease: 'easeInOut',
+                    }
+                    : {
+                      duration: 0.65,
+                      ease: 'easeOut',
                     }}
+                  className="h-full w-full"
+                  style={{ x: springImageX, y: springImageY }}
+                >
+                  <img
+                    src={HEADPHONES_IMAGE}
+                    alt="Gadget69 hero headphones presented as a premium studio-lit product object"
+                    loading="eager"
+                    fetchpriority="high"
+                    onLoad={() => setAssetLoaded(true)}
+                    onError={() => setAssetLoaded(true)}
+                    className="pointer-events-none block h-full w-full object-contain"
                     style={{
                       filter: sonicMode
                         ? 'drop-shadow(0 40px 54px rgba(15,23,42,0.22)) drop-shadow(0 0 32px rgba(86,166,255,0.2))'

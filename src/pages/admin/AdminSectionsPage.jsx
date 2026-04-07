@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertTriangle, Layers3, Pencil, Plus, Trash2 } from 'lucide-react';
 import api, { apiErrorMessage } from '../../lib/api';
+import { invalidateCatalogCache } from '../../hooks/useCatalog';
 import {
   AdminChip,
   AdminEmptyState,
@@ -81,6 +82,7 @@ const AdminSectionsPage = () => {
         await api.post('/admin/sections', form);
       }
 
+      invalidateCatalogCache();
       await loadSections();
       resetForm({ notice: successNotice });
     } catch (submitError) {
@@ -93,6 +95,7 @@ const AdminSectionsPage = () => {
   const handleDelete = async (sectionId) => {
     try {
       await api.delete(`/admin/sections/${sectionId}`);
+      invalidateCatalogCache();
       await loadSections();
       if (editingId === sectionId) {
         resetForm({ notice: 'Section removed from the catalog structure.' });

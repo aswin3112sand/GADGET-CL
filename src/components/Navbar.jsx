@@ -172,11 +172,11 @@ const Navbar = ({ cartSlot }) => {
           <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(86,166,255,0.18)] bg-[rgba(255,255,255,0.72)] text-sm font-semibold text-[#1a2433] shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
             G
           </div>
-          <div className="leading-none">
-            <div className="text-[1.05rem] font-semibold uppercase tracking-[0.42em] text-[#0f172a]">
+          <div className="min-w-0 leading-none">
+            <div className="truncate text-[0.95rem] font-semibold uppercase tracking-[0.28em] text-[#0f172a] sm:text-[1.05rem] sm:tracking-[0.42em]">
               Gadget69
             </div>
-            <div className="mt-1 text-[9px] font-semibold uppercase tracking-[0.38em] text-[#64748b]">
+            <div className="mt-1 hidden text-[9px] font-semibold uppercase tracking-[0.38em] text-[#64748b] sm:block">
               Luxury tech atelier
             </div>
           </div>
