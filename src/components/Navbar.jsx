@@ -1,113 +1,272 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Zap } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
 
 const navLinks = [
-  { label: 'Home',       href: '/' },
-  { label: 'Products',   href: '/products' },
-  { label: 'Categories', href: '/categories' },
-  { label: 'Offers',     href: '/offers' },
-  { label: 'Reviews',    href: '/reviews' },
-  { label: 'About',      href: '/about' },
-  { label: 'Contact',    href: '/contact' },
+  {
+    key: 'home',
+    label: 'Home',
+    href: '/',
+    sectionId: 'home',
+    matches: (pathname) => pathname === '/',
+  },
+  {
+    key: 'products',
+    label: 'Products',
+    href: '/products',
+    sectionId: 'products',
+    matches: (pathname) => pathname === '/products' || pathname.startsWith('/product/'),
+  },
+  {
+    key: 'categories',
+    label: 'Categories',
+    href: '/categories',
+    sectionId: 'categories',
+    matches: (pathname) => pathname === '/categories' || pathname.startsWith('/category/'),
+  },
+  {
+    key: 'offers',
+    label: 'Offers',
+    href: '/offers',
+    sectionId: 'offers',
+    matches: (pathname) => pathname === '/offers',
+  },
+  {
+    key: 'reviews',
+    label: 'Reviews',
+    href: '/reviews',
+    sectionId: 'reviews',
+    matches: (pathname) => pathname === '/reviews',
+  },
+  {
+    key: 'about',
+    label: 'About',
+    href: '/about',
+    sectionId: 'about',
+    matches: (pathname) => pathname === '/about',
+  },
+  {
+    key: 'contact',
+    label: 'Contact',
+    href: '/contact',
+    sectionId: 'contact',
+    matches: (pathname) => pathname === '/contact',
+  },
 ];
 
+const HOME_SCROLL_OFFSET = 108;
+
 const Navbar = ({ cartSlot }) => {
-  const [scrolled,  setScrolled]  = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
   const { pathname } = useLocation();
+  const isHomePage = pathname === '/';
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handler);
+    const handler = () => setScrolled(window.scrollY > 24);
+    handler();
+    window.addEventListener('scroll', handler, { passive: true });
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isHomePage) {
+      setActiveSection('home');
+      return undefined;
+    }
+
+    const sections = navLinks
+      .map((link) => link.sectionId && document.getElementById(link.sectionId))
+      .filter(Boolean);
+
+    if (!sections.length) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      const visibleSections = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((left, right) => left.boundingClientRect.top - right.boundingClientRect.top);
+
+      if (visibleSections.length > 0) {
+        setActiveSection(visibleSections[0].target.id);
+      }
+    }, {
+      rootMargin: '-42% 0px -42% 0px',
+      threshold: [0, 0.18, 0.32, 0.55],
+    });
+
+    sections.forEach((section) => observer.observe(section));
+
+    const syncEdgeSections = () => {
+      if (window.scrollY < 80) {
+        setActiveSection('home');
+        return;
+      }
+
+      const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 160;
+      if (nearBottom) {
+        setActiveSection(sections[sections.length - 1].id);
+      }
+    };
+    syncEdgeSections();
+    window.addEventListener('scroll', syncEdgeSections, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', syncEdgeSections);
+    };
+  }, [isHomePage]);
+
+  const routeActiveKey = useMemo(
+    () => navLinks.find((link) => link.matches(pathname))?.key || 'home',
+    [pathname],
+  );
+  const activeKey = isHomePage ? activeSection : routeActiveKey;
+
+  const scrollToSection = (sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (!section) {
+      return;
+    }
+
+    const nextTop = section.getBoundingClientRect().top + window.scrollY - HOME_SCROLL_OFFSET;
+    window.scrollTo({ top: Math.max(0, nextTop), behavior: 'smooth' });
+    setActiveSection(sectionId);
+    setMobileOpen(false);
+  };
+
+  const handleNavClick = (link) => (event) => {
+    if (isHomePage && link.sectionId) {
+      event.preventDefault();
+      scrollToSection(link.sectionId);
+      return;
+    }
+
+    setMobileOpen(false);
+  };
+
   return (
     <motion.nav
-      initial={{ y: -80, opacity: 0 }}
+      initial={{ y: -48, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500
-        ${scrolled
-          ? 'glass-strong shadow-premium border-b border-white/5 py-3'
-          : 'bg-transparent py-5'}`}
+      transition={{ duration: 0.55, ease: 'easeOut' }}
+      className={`fixed left-0 right-0 top-0 z-50 px-4 transition-all duration-500 md:px-8 ${
+        scrolled ? 'py-3' : 'py-5'
+      }`}
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-neon-blue
-                          flex items-center justify-center shadow-neon-blue
-                          group-hover:scale-110 transition-transform duration-300">
-            <Zap className="w-4 h-4 text-white" fill="white" />
+      <div
+        className={`mx-auto flex max-w-7xl items-center justify-between rounded-[1.9rem] border px-4 transition-all duration-500 md:px-6 ${
+          scrolled
+            ? 'border-white/54 bg-[linear-gradient(135deg,rgba(255,255,255,0.76)_0%,rgba(255,255,255,0.34)_100%)] py-3 shadow-[0_26px_64px_rgba(15,23,42,0.14),0_0_36px_rgba(86,166,255,0.1)] backdrop-blur-[28px]'
+            : 'border-white/42 bg-[linear-gradient(135deg,rgba(255,255,255,0.6)_0%,rgba(255,255,255,0.18)_100%)] py-4 shadow-[0_20px_54px_rgba(15,23,42,0.1)] backdrop-blur-[24px]'
+        }`}
+      >
+        <Link to="/" className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(86,166,255,0.18)] bg-[rgba(255,255,255,0.72)] text-sm font-semibold text-[#1a2433] shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
+            G
           </div>
-          <span className="font-display font-bold text-xl tracking-tight">
-            <span className="gradient-text-blue">NEXUS</span>
-          </span>
+          <div className="leading-none">
+            <div className="text-[1.05rem] font-semibold uppercase tracking-[0.42em] text-[#0f172a]">
+              Gadget69
+            </div>
+            <div className="mt-1 text-[9px] font-semibold uppercase tracking-[0.38em] text-[#64748b]">
+              Luxury tech atelier
+            </div>
+          </div>
         </Link>
 
-        {/* Desktop Nav Links */}
-        <div className="hidden lg:flex items-center gap-1">
+        <div className="hidden items-center gap-1 rounded-full border border-white/45 bg-[rgba(248,250,252,0.58)] p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_14px_34px_rgba(15,23,42,0.08)] backdrop-blur-xl lg:flex">
           {navLinks.map((link) => (
             <Link
-              key={link.href}
+              key={link.key}
               to={link.href}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300
-                ${pathname === link.href
-                  ? 'text-white bg-brand-500/10 border border-brand-500/20'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+              onClick={handleNavClick(link)}
+              className="relative"
             >
-              {link.label}
+              <motion.span
+                animate={{ scale: activeKey === link.key ? 1.04 : 1 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className={`relative inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-colors duration-300 ${
+                  activeKey === link.key
+                    ? 'text-white'
+                    : 'text-[#526173] hover:text-[#0f172a]'
+                }`}
+              >
+                {activeKey === link.key ? (
+                  <>
+                    <motion.span
+                      layoutId="nav-active-pill"
+                      className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,#0f172a_0%,#172554_100%)] shadow-[0_18px_34px_rgba(15,23,42,0.18),0_0_28px_rgba(86,166,255,0.18)]"
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                    />
+                    <motion.span
+                      layoutId="nav-active-indicator"
+                      className="absolute bottom-[0.38rem] left-4 right-4 h-[2px] rounded-full bg-[#7dd3fc]"
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                    />
+                  </>
+                ) : null}
+                <span className="relative z-10">{link.label}</span>
+              </motion.span>
             </Link>
           ))}
         </div>
 
-        {/* Right Actions */}
         <div className="flex items-center gap-3">
-          {/* Cart Slot */}
           {cartSlot}
 
-          {/* CTA */}
-          <Link to="/products"
-                className="hidden md:flex btn-primary text-sm px-5 py-2.5">
-            Shop Now
+          <Link to="/products" className="hidden md:inline-flex btn-primary px-6 py-2.5 text-sm">
+            Explore Collection
           </Link>
 
-          {/* Mobile Toggle */}
           <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-2.5 rounded-xl glass border border-white/10"
+            onClick={() => setMobileOpen((value) => !value)}
+            className="rounded-full border border-[rgba(86,166,255,0.14)] bg-[rgba(255,255,255,0.7)] p-3 text-[#0f172a] shadow-[0_14px_28px_rgba(15,23,42,0.08)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_20px_44px_rgba(86,166,255,0.16)] lg:hidden"
+            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
           >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden glass-strong border-t border-white/5 overflow-hidden"
+            className="mx-auto mt-4 max-w-7xl overflow-hidden rounded-[1.8rem] border border-white/52 bg-[linear-gradient(180deg,rgba(255,255,255,0.82)_0%,rgba(248,250,252,0.72)_100%)] shadow-[0_24px_52px_rgba(15,23,42,0.12),0_0_34px_rgba(86,166,255,0.08)] backdrop-blur-[24px] lg:hidden"
           >
+            <div className="border-b border-[rgba(148,163,184,0.18)] px-5 py-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#315dff]">
+                Navigate the collection
+              </p>
+            </div>
             <div className="flex flex-col gap-1 p-4">
               {navLinks.map((link) => (
                 <Link
-                  key={link.href}
+                  key={link.key}
                   to={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
-                    ${pathname === link.href
-                      ? 'text-white bg-brand-500/10 border border-brand-500/20'
-                      : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+                  onClick={handleNavClick(link)}
+                  className={`rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-300 ${
+                    activeKey === link.key
+                      ? 'bg-[linear-gradient(135deg,#0f172a_0%,#172554_100%)] text-white shadow-[0_16px_30px_rgba(15,23,42,0.16),0_0_28px_rgba(86,166,255,0.18)]'
+                      : 'text-[#526173] hover:bg-white/80 hover:text-[#0f172a] hover:shadow-[0_16px_28px_rgba(86,166,255,0.1)]'
+                  }`}
                 >
                   {link.label}
                 </Link>
               ))}
+              <Link to="/products" className="btn-primary mt-3 justify-center text-sm">
+                Shop premium picks
+              </Link>
             </div>
           </motion.div>
         )}

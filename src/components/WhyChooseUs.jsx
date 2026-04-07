@@ -1,53 +1,70 @@
 import { motion } from 'framer-motion';
-import { Shield, Truck, RotateCcw, Headphones, Star, Zap } from 'lucide-react';
+import { Headphones, RotateCcw, Shield, Sparkles, Star, Truck } from 'lucide-react';
 import SectionHeader from './SectionHeader';
 
 const features = [
-  { icon: Shield,      title: 'Genuine Products',   desc: '100% authentic gadgets sourced directly from authorized brand distributors.', color: 'from-blue-500 to-cyan-400',    glow: 'rgba(0,212,255,0.2)' },
-  { icon: Truck,       title: 'Ultra-Fast Delivery', desc: 'Same-day shipping in major cities. Free delivery on all orders above ₹499.',  color: 'from-green-500 to-emerald-400', glow: 'rgba(16,185,129,0.2)' },
-  { icon: RotateCcw,   title: '7-Day Returns',       desc: 'No questions asked returns within 7 days. Hassle-free refunds guaranteed.',    color: 'from-purple-500 to-violet-400', glow: 'rgba(139,92,246,0.2)' },
-  { icon: Headphones,  title: '24/7 Expert Support', desc: 'Dedicated tech experts available round the clock via chat, call, or email.',   color: 'from-pink-500 to-rose-400',    glow: 'rgba(244,63,94,0.2)' },
-  { icon: Star,        title: 'Curated Quality',     desc: 'Every product is handpicked, tested, and rated by our in-house tech team.',    color: 'from-amber-500 to-yellow-400', glow: 'rgba(245,158,11,0.2)' },
-  { icon: Zap,         title: 'Smart Pricing',       desc: 'AI-powered price tracking ensures you always get the best possible deal.',     color: 'from-brand-500 to-indigo-400', glow: 'rgba(99,102,241,0.2)' },
+  {
+    icon: Shield,
+    title: 'Genuine Products',
+    desc: 'Every device is sourced from trusted channels with authenticity and packaging standards intact.',
+  },
+  {
+    icon: Truck,
+    title: 'Fast Delivery',
+    desc: 'Priority dispatch and careful handling keep the experience feeling elevated from purchase to arrival.',
+  },
+  {
+    icon: RotateCcw,
+    title: 'Easy Returns',
+    desc: 'A cleaner service promise with simpler returns, clearer expectations, and less checkout friction.',
+  },
+  {
+    icon: Headphones,
+    title: 'Real Support',
+    desc: 'Talk to people who know the products, not scripts that slow down the buying journey.',
+  },
+  {
+    icon: Star,
+    title: 'Curated Quality',
+    desc: 'The catalog favors high-performing pieces with strong design, useful features, and lasting value.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Premium Presentation',
+    desc: 'From visuals to content hierarchy, every touchpoint is tuned to feel quieter, sharper, and more premium.',
+  },
 ];
 
 const WhyChooseUs = () => (
-  <section className="section-padding bg-dark-400 relative overflow-hidden">
-    <div className="absolute inset-0 bg-mesh pointer-events-none opacity-50" />
-
-    <div className="max-w-7xl mx-auto relative z-10">
+  <section className="section-padding relative overflow-hidden bg-transparent">
+    <div className="mx-auto max-w-7xl">
       <SectionHeader
-        badge="Why NEXUS"
-        title="Premium Experience"
-        highlight="Guaranteed"
-        subtitle="We obsess over every detail so you can shop with absolute confidence."
+        badge="Why Gadget69"
+        title="A Premium Experience,"
+        highlight="Handled with Care"
+        subtitle="Premium visuals mean more when the service, shipping, and support cues feel equally deliberate."
+        tone="light"
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {features.map(({ icon: Icon, title, desc, color, glow }, i) => (
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {features.map(({ icon: Icon, title, desc }, index) => (
           <motion.div
             key={title}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
+            transition={{ delay: index * 0.06 }}
           >
             <motion.div
               whileHover={{ y: -6 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              className="group glass rounded-3xl p-7 border border-white/5
-                         hover:border-white/15 transition-all duration-500 h-full"
-              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 20px 60px ${glow}`; }}
-              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = ''; }}
+              transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+              className="h-full rounded-[2rem] border border-[rgba(34,24,17,0.08)] bg-[linear-gradient(180deg,rgba(255,252,247,0.88)_0%,rgba(252,246,239,0.76)_100%)] p-7 shadow-[0_22px_44px_rgba(23,17,13,0.06)]"
             >
-              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color}
-                               flex items-center justify-center mb-5
-                               group-hover:scale-110 transition-transform duration-300`}
-                   style={{ boxShadow: `0 8px 20px ${glow}` }}>
-                <Icon className="w-7 h-7 text-white" />
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-[1.3rem] bg-brand-50 text-brand-600 shadow-[0_14px_28px_rgba(184,139,74,0.12)]">
+                <Icon className="h-6 w-6" />
               </div>
-              <h3 className="font-display font-bold text-lg text-white mb-3">{title}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{desc}</p>
+              <h3 className="font-display text-3xl text-[#17110d]">{title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-[#5f554b]">{desc}</p>
             </motion.div>
           </motion.div>
         ))}

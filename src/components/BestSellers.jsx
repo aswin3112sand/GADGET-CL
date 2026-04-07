@@ -5,32 +5,32 @@ import ProductSlider from './ProductSlider';
 import { trendingProducts } from '../data/mockData';
 
 const BestSellers = ({ addToCart }) => (
-  <section className="section-padding bg-dark-300 relative overflow-hidden">
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px]
-                    bg-brand-600/10 blur-[120px] pointer-events-none rounded-full" />
+  <section className="section-padding relative overflow-hidden bg-[rgba(255,250,243,0.32)]">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(220,195,154,0.24),transparent_32%)]" />
 
-    <div className="max-w-7xl mx-auto relative z-10">
-      <div className="flex items-end justify-between mb-12">
+    <div className="relative z-10 mx-auto max-w-7xl">
+      <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <SectionHeader
-          badge="🔥 Trending Now"
-          title="Best"
-          highlight="Sellers"
-          subtitle="Handpicked by our community of 50,000+ tech enthusiasts."
+          badge="Best Sellers"
+          title="Our Most"
+          highlight="Desired Picks"
+          subtitle="Handpicked devices now sit inside a cleaner editorial frame with sharper price hierarchy and quieter luxury product cards."
           center={false}
+          tone="light"
         />
+
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
+          initial={{ opacity: 0, x: 18 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full
-                     glass neon-border text-brand-400 text-sm font-semibold"
+          className="luxury-pill text-sm normal-case tracking-[0.08em]"
         >
-          <Flame className="w-4 h-4" />
+          <Flame className="h-4 w-4" />
           56 sold today
         </motion.div>
       </div>
 
-      <ProductSlider products={trendingProducts.slice(0, 12)} addToCart={addToCart} />
+      <ProductSlider products={trendingProducts.slice(0, 10)} addToCart={addToCart} />
     </div>
   </section>
 );

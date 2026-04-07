@@ -1,93 +1,116 @@
 import { Link } from 'react-router-dom';
-import { Zap, Twitter, Instagram, Youtube, Github, Mail, Phone, MapPin } from 'lucide-react';
+import { Github, Instagram, Mail, MapPin, Phone, Twitter, Youtube } from 'lucide-react';
 
 const Footer = () => (
-  <footer className="bg-dark-300 border-t border-white/5">
-    <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16 py-16">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
-
-        {/* Brand */}
-        <div className="lg:col-span-2">
-          <Link to="/" className="flex items-center gap-2 mb-5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-neon-blue
-                            flex items-center justify-center shadow-neon-blue">
-              <Zap className="w-4 h-4 text-white" fill="white" />
+  <footer className="border-t border-white/10 bg-[#100b08] text-[#f8f3eb]">
+    <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 lg:px-16">
+      <div className="mb-12 grid grid-cols-1 gap-10 lg:grid-cols-[1.35fr,0.9fr,0.9fr,1fr]">
+        <div>
+          <Link to="/" className="mb-6 flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-300/24 bg-white/8 text-sm font-semibold text-brand-300">
+              G
             </div>
-            <span className="font-display font-bold text-xl gradient-text-blue">NEXUS</span>
+            <div>
+              <div className="font-display text-2xl tracking-[0.16em]">Gadget69</div>
+              <div className="text-[10px] font-semibold uppercase tracking-[0.34em] text-white/38">
+                Curated electronics atelier
+              </div>
+            </div>
           </Link>
-          <p className="text-white/40 text-sm leading-relaxed mb-6 max-w-xs">
-            Your premium destination for the world's most innovative tech gadgets.
-            Curated quality, futuristic design, exceptional service.
+
+          <p className="max-w-md text-sm leading-relaxed text-white/56">
+            A quieter premium-tech storefront shaped around curation, presentation, and
+            service that feels considered from the first scroll to the final delivery.
           </p>
-          <div className="flex gap-3">
-            {[Twitter, Instagram, Youtube, Github].map((Icon, i) => (
-              <a key={i} href="#"
-                 className="w-9 h-9 rounded-xl glass border border-white/10
-                            flex items-center justify-center text-white/50
-                            hover:text-white hover:border-brand-500/40 hover:shadow-neon-blue
-                            transition-all duration-300">
-                <Icon className="w-4 h-4" />
+
+          <div className="mt-6 rounded-[1.6rem] border border-white/10 bg-white/5 p-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-300">
+              Concierge support
+            </p>
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/56">
+              Need product advice, gifting help, or after-purchase support? We keep the
+              experience just as polished after checkout.
+            </p>
+          </div>
+
+          <div className="mt-6 flex gap-3">
+            {[Twitter, Instagram, Youtube, Github].map((Icon, index) => (
+              <a
+                key={index}
+                href="#"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/6 text-white/56 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-300/30 hover:text-brand-300"
+              >
+                <Icon className="h-4 w-4" />
               </a>
             ))}
           </div>
         </div>
 
-        {/* Categories */}
         <div>
-          <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-5">Categories</h4>
+          <h4 className="mb-5 text-sm font-semibold uppercase tracking-[0.24em] text-brand-300">
+            Categories
+          </h4>
           <ul className="space-y-3">
-            {['Mobile Phones','Smart Watches','Earbuds','Laptops','Gaming','Smart Home'].map(c => (
-              <li key={c}>
-                <Link to="/products" className="text-white/40 text-sm hover:text-white transition-colors">
-                  {c}
+            {['Mobile Phones', 'Smart Watches', 'Earbuds', 'Laptops', 'Gaming', 'Smart Home'].map((item) => (
+              <li key={item}>
+                <Link to="/products" className="text-sm text-white/48 transition-colors hover:text-white">
+                  {item}
                 </Link>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Customer */}
         <div>
-          <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-5">Customer</h4>
+          <h4 className="mb-5 text-sm font-semibold uppercase tracking-[0.24em] text-brand-300">
+            Customer
+          </h4>
           <ul className="space-y-3">
-            {['My Orders','Track Order','Returns','Warranty','Reviews','Help Center'].map(c => (
-              <li key={c}>
-                <a href="#" className="text-white/40 text-sm hover:text-white transition-colors">{c}</a>
+            {['My Orders', 'Track Order', 'Returns', 'Warranty', 'Reviews', 'Help Center'].map((item) => (
+              <li key={item}>
+                <a href="#" className="text-sm text-white/48 transition-colors hover:text-white">
+                  {item}
+                </a>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Contact */}
         <div>
-          <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-5">Contact</h4>
+          <h4 className="mb-5 text-sm font-semibold uppercase tracking-[0.24em] text-brand-300">
+            Contact
+          </h4>
           <ul className="space-y-3">
-            <li className="flex items-center gap-2 text-white/40 text-sm">
-              <Mail className="w-4 h-4 text-brand-400 flex-none" />
-              support@nexusgadgets.com
+            <li className="flex items-center gap-2 text-sm text-white/48">
+              <Mail className="h-4 w-4 flex-none text-brand-300" />
+              concierge@gadget69.in
             </li>
-            <li className="flex items-center gap-2 text-white/40 text-sm">
-              <Phone className="w-4 h-4 text-brand-400 flex-none" />
+            <li className="flex items-center gap-2 text-sm text-white/48">
+              <Phone className="h-4 w-4 flex-none text-brand-300" />
               +91 9876 543 210
             </li>
-            <li className="flex items-start gap-2 text-white/40 text-sm">
-              <MapPin className="w-4 h-4 text-brand-400 flex-none mt-0.5" />
+            <li className="flex items-start gap-2 text-sm text-white/48">
+              <MapPin className="mt-0.5 h-4 w-4 flex-none text-brand-300" />
               Chennai, Tamil Nadu, India
             </li>
           </ul>
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row
-                      items-center justify-between gap-4">
-        <p className="text-white/30 text-sm">
-          © 2025 NEXUS Gadgets. All rights reserved. Built with ❤️ in Tamil Nadu.
+      <div className="flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
+        <p className="text-sm text-white/34">
+          Copyright 2026 Gadget69. All rights reserved. Built with care in Tamil Nadu.
         </p>
-        <div className="flex gap-6 text-white/30 text-sm">
-          <a href="#" className="hover:text-white transition-colors">Privacy</a>
-          <a href="#" className="hover:text-white transition-colors">Terms</a>
-          <a href="#" className="hover:text-white transition-colors">Cookies</a>
+        <div className="flex gap-6 text-sm text-white/34">
+          <a href="#" className="transition-colors hover:text-white">
+            Privacy
+          </a>
+          <a href="#" className="transition-colors hover:text-white">
+            Terms
+          </a>
+          <a href="#" className="transition-colors hover:text-white">
+            Cookies
+          </a>
         </div>
       </div>
     </div>

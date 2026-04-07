@@ -7,51 +7,44 @@ import { reviews } from '../data/mockData';
 
 const Reviews = () => {
   const ref = useRef(null);
-  const scroll = (dir) => ref.current?.scrollBy({ left: dir * 350, behavior: 'smooth' });
+
+  const scroll = (direction) => {
+    ref.current?.scrollBy({ left: direction * 350, behavior: 'smooth' });
+  };
 
   return (
-    <section className="section-padding bg-dark-300 relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-                      w-[800px] h-[400px] rounded-full
-                      bg-brand-600/8 blur-[150px] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="flex items-end justify-between mb-12">
+    <section className="section-padding relative overflow-hidden bg-[rgba(255,250,243,0.42)]">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <SectionHeader
-            badge="Customer Love"
-            title="What Our"
-            highlight="Customers Say"
-            subtitle="Real reviews from verified buyers who trust NEXUS."
+            badge="Customer Notes"
+            title="What Buyers"
+            highlight="Notice First"
+            subtitle="Verified shopper feedback presented with cleaner pacing, softer surfaces, and a more premium reading rhythm."
             center={false}
+            tone="light"
           />
-          <div className="hidden md:flex gap-2">
-            <button onClick={() => scroll(-1)}
-                    className="w-10 h-10 rounded-full glass border border-white/10
-                               hover:border-brand-500/40 flex items-center justify-center
-                               transition-all duration-300">
-              <ChevronLeft className="w-5 h-5" />
+
+          <div className="hidden gap-2 md:flex">
+            <button onClick={() => scroll(-1)} className="slider-arrow" aria-label="Scroll reviews left">
+              <ChevronLeft className="h-5 w-5" />
             </button>
-            <button onClick={() => scroll(1)}
-                    className="w-10 h-10 rounded-full glass border border-white/10
-                               hover:border-brand-500/40 flex items-center justify-center
-                               transition-all duration-300">
-              <ChevronRight className="w-5 h-5" />
+            <button onClick={() => scroll(1)} className="slider-arrow" aria-label="Scroll reviews right">
+              <ChevronRight className="h-5 w-5" />
             </button>
           </div>
         </div>
 
-        <div ref={ref}
-             className="flex gap-4 overflow-x-auto pb-4"
-             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          {[...reviews, ...reviews].map((r, i) => (
+        <div ref={ref} className="hide-scrollbar flex gap-5 overflow-x-auto pb-4">
+          {[...reviews, ...reviews].map((review, index) => (
             <motion.div
-              key={`${r.id}-${i}`}
-              initial={{ opacity: 0, x: 30 }}
+              key={`${review.id}-${index}`}
+              initial={{ opacity: 0, x: 24 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
+              transition={{ delay: index * 0.04 }}
             >
-              <ReviewCard review={r} />
+              <ReviewCard review={review} />
             </motion.div>
           ))}
         </div>

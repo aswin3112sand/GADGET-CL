@@ -1,10 +1,10 @@
 import { useRef } from 'react';
-import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from './ProductCard';
 
 const ProductSlider = ({ products, addToCart }) => {
   const ref = useRef(null);
+  const visibleProducts = products.slice(0, 10);
 
   const scroll = (dir) => {
     ref.current?.scrollBy({ left: dir * 320, behavior: 'smooth' });
@@ -14,23 +14,18 @@ const ProductSlider = ({ products, addToCart }) => {
     <div className="relative">
       <button
         onClick={() => scroll(-1)}
-        className="absolute -left-4 top-1/2 -translate-y-1/2 z-10
-                   w-10 h-10 rounded-full glass-strong border border-white/10
-                   flex items-center justify-center
-                   hover:border-brand-500/40 hover:shadow-neon-blue
-                   transition-all duration-300 shadow-glass"
+        className="slider-arrow absolute -left-3 top-1/2 z-10 -translate-y-1/2 hover:-translate-y-[52%]"
+        aria-label="Scroll products left"
       >
-        <ChevronLeft className="w-5 h-5 text-white" />
+        <ChevronLeft className="h-5 w-5" />
       </button>
 
       <div
         ref={ref}
-        className="flex gap-4 overflow-x-auto pb-4
-                   scroll-smooth"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="hide-scrollbar flex gap-5 overflow-x-auto pb-4 scroll-smooth"
       >
-        {products.map((product, i) => (
-          <div key={product.id} className="flex-none w-64">
+        {visibleProducts.map((product, i) => (
+          <div key={product.id} className="w-64 flex-none">
             <ProductCard product={product} index={i} addToCart={addToCart} />
           </div>
         ))}
@@ -38,13 +33,10 @@ const ProductSlider = ({ products, addToCart }) => {
 
       <button
         onClick={() => scroll(1)}
-        className="absolute -right-4 top-1/2 -translate-y-1/2 z-10
-                   w-10 h-10 rounded-full glass-strong border border-white/10
-                   flex items-center justify-center
-                   hover:border-brand-500/40 hover:shadow-neon-blue
-                   transition-all duration-300 shadow-glass"
+        className="slider-arrow absolute -right-3 top-1/2 z-10 -translate-y-1/2 hover:-translate-y-[52%]"
+        aria-label="Scroll products right"
       >
-        <ChevronRight className="w-5 h-5 text-white" />
+        <ChevronRight className="h-5 w-5" />
       </button>
     </div>
   );

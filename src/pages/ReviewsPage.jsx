@@ -1,48 +1,61 @@
 import { motion } from 'framer-motion';
+import { MessageSquareQuote, Star } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import ReviewCard from '../components/ReviewCard';
 import { reviews } from '../data/mockData';
 
+const featuredReviews = [...reviews, ...reviews.slice(0, 2)];
+
 const ReviewsPage = () => (
-  <main className="min-h-screen bg-dark-400 pt-24">
+  <main className="page-shell">
     <section className="section-padding">
-      <div className="max-w-7xl mx-auto">
-        <SectionHeader
-          badge="Customer Love"
-          title="What Our"
-          highlight="Customers Say"
-          subtitle="Real verified reviews from our 50,000+ happy customers across India."
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[...reviews, ...reviews].map((r, i) => (
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-14 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
+          <SectionHeader
+            badge="Customer Love"
+            title="What Our"
+            highlight="Customers Say"
+            subtitle="Verified feedback presented with cleaner surfaces, calmer cards, and a more premium reading rhythm."
+            center={false}
+            tone="light"
+          />
+
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="anchor-panel p-6"
+          >
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.32em] text-brand-300">
+              <MessageSquareQuote className="h-4 w-4" />
+              Trust signal
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-5">
+              <div>
+                <div className="font-display text-4xl text-white">4.9</div>
+                <p className="mt-1 text-sm text-white/58">Average rating</p>
+              </div>
+              <div>
+                <div className="mb-1 flex items-center gap-1 text-brand-300">
+                  <Star className="h-4 w-4 fill-brand-300 text-brand-300" />
+                  <span className="font-display text-4xl">50K+</span>
+                </div>
+                <p className="text-sm text-white/58">Trusted shoppers</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {featuredReviews.map((review, index) => (
             <motion.div
-              key={`${r.id}-${i}`}
-              initial={{ opacity: 0, y: 30 }}
+              key={`${review.id}-${index}`}
+              initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: (i % 6) * 0.1 }}
-              className="w-full"
+              transition={{ delay: (index % 6) * 0.06 }}
             >
-              <div className="glass rounded-3xl p-6 border border-white/5
-                              hover:border-brand-500/20 transition-all duration-300
-                              hover:-translate-y-1">
-                <div className="flex gap-0.5 mb-4">
-                  {Array.from({ length: 5 }, (_, j) => (
-                    <span key={j} className={`text-lg ${j < r.rating ? 'text-amber-400' : 'text-white/20'}`}>★</span>
-                  ))}
-                </div>
-                <p className="text-white/70 text-sm leading-relaxed mb-5">"{r.review}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-neon-blue
-                                  flex items-center justify-center text-white text-sm font-bold flex-none">
-                    {r.avatar}
-                  </div>
-                  <div>
-                    <div className="text-white font-semibold text-sm">{r.name}</div>
-                    <div className="text-white/40 text-xs">{r.product} · {r.date}</div>
-                  </div>
-                </div>
-              </div>
+              <ReviewCard review={review} className="h-full w-full" />
             </motion.div>
           ))}
         </div>

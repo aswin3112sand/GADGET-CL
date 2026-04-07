@@ -2,6 +2,12 @@ node_modules/
 dist/
 .vercel/
 .tmp/
+backend/target/
+backend/.local/
+.env
+.env.local
+backend/.env
+backend/.env.local
 
 # Logs
 *.log

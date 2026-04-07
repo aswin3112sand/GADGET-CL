@@ -1,348 +1,398 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   motion,
+  useAnimationControls,
   useMotionTemplate,
   useMotionValue,
+  useReducedMotion,
   useSpring,
-  useTransform,
 } from 'framer-motion';
-import gsap from 'gsap';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Shield, Star, Truck, Zap } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
-const floatingProducts = [
-  {
-    name: 'Nova X Pro',
-    price: 'Rs. 49,999',
-    img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&q=90',
-    top: '14%',
-    left: '5%',
-    delay: 0,
-  },
-  {
-    name: 'Pulse Ultra',
-    price: 'Rs. 18,999',
-    img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&q=90',
-    top: '10%',
-    right: '5%',
-    delay: 0.45,
-  },
-  {
-    name: 'SonicBuds Air',
-    price: 'Rs. 12,999',
-    img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&q=90',
-    bottom: '19%',
-    left: '4%',
-    delay: 0.9,
-  },
-  {
-    name: 'TitanBook X14',
-    price: 'Rs. 89,999',
-    img: 'https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=200&q=90',
-    bottom: '16%',
-    right: '4%',
-    delay: 1.35,
-  },
-];
+const HEADPHONES_IMAGE = '/hero-headphones.png';
 
-const trustBadges = [
-  { icon: Shield, label: '100% Genuine' },
-  { icon: Truck, label: 'Free Delivery' },
-  { icon: Star, label: '4.8 Rated' },
-  { icon: Zap, label: '24h Shipping' },
-];
+const revealGroup = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.09,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const revealItem = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.7,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
 
 const HeroSection = () => {
-  const sectionRef = useRef(null);
-  const badgeRef = useRef(null);
-  const badgeGlowRef = useRef(null);
-  const badgeLightRef = useRef(null);
+  const shouldReduceMotion = useReducedMotion();
+  const showcaseRef = useRef(null);
+  const [interactiveEnabled, setInteractiveEnabled] = useState(false);
+  const [sonicMode, setSonicMode] = useState(false);
+  const [assetLoaded, setAssetLoaded] = useState(false);
+  const burstControls = useAnimationControls();
+  const tiltX = useMotionValue(0);
+  const tiltY = useMotionValue(0);
+  const lightX = useMotionValue(50);
+  const lightY = useMotionValue(42);
+  const imageDriftX = useMotionValue(0);
+  const imageDriftY = useMotionValue(0);
+  const springTiltX = useSpring(tiltX, { stiffness: 170, damping: 20, mass: 0.7 });
+  const springTiltY = useSpring(tiltY, { stiffness: 170, damping: 20, mass: 0.7 });
+  const springLightX = useSpring(lightX, { stiffness: 120, damping: 20, mass: 0.8 });
+  const springLightY = useSpring(lightY, { stiffness: 120, damping: 20, mass: 0.8 });
+  const springImageX = useSpring(imageDriftX, { stiffness: 140, damping: 18, mass: 0.8 });
+  const springImageY = useSpring(imageDriftY, { stiffness: 140, damping: 18, mass: 0.8 });
+  const cursorHalo = useMotionTemplate`radial-gradient(circle at ${springLightX}% ${springLightY}%, rgba(96, 165, 250, 0.36) 0%, rgba(59, 130, 246, 0.2) 24%, rgba(255,255,255,0.1) 44%, transparent 74%)`;
 
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-  const pointerX = useMotionValue(50);
-  const pointerY = useMotionValue(50);
-
-  const smoothRotateX = useSpring(rotateX, { stiffness: 120, damping: 18, mass: 0.4 });
-  const smoothRotateY = useSpring(rotateY, { stiffness: 120, damping: 18, mass: 0.4 });
-  const smoothPointerX = useSpring(pointerX, { stiffness: 140, damping: 22, mass: 0.35 });
-  const smoothPointerY = useSpring(pointerY, { stiffness: 140, damping: 22, mass: 0.35 });
-
-  const deepLayerX = useTransform(smoothRotateY, [-14, 14], [30, -30]);
-  const deepLayerY = useTransform(smoothRotateX, [-14, 14], [-22, 22]);
-  const shallowLayerX = useTransform(smoothRotateY, [-14, 14], [16, -16]);
-  const shallowLayerY = useTransform(smoothRotateX, [-14, 14], [-12, 12]);
-  const spotlight = useMotionTemplate`radial-gradient(circle at ${smoothPointerX}% ${smoothPointerY}%, rgba(103, 232, 249, 0.18), transparent 18%), radial-gradient(circle at ${smoothPointerX}% ${smoothPointerY}%, rgba(244, 114, 182, 0.1), transparent 34%)`;
-
-  useLayoutEffect(() => {
-    const section = sectionRef.current;
-    const badge = badgeRef.current;
-    const badgeGlow = badgeGlowRef.current;
-    const badgeLight = badgeLightRef.current;
-
-    if (!section || !badge || !badgeGlow || !badgeLight) {
+  useEffect(() => {
+    if (shouldReduceMotion || typeof window === 'undefined') {
+      setInteractiveEnabled(false);
       return undefined;
     }
 
-    const ctx = gsap.context(() => {
-      gsap.set(badge, {
-        xPercent: -50,
-        yPercent: -50,
-        transformPerspective: 1000,
-        transformOrigin: 'center center',
-      });
+    const mediaQuery = window.matchMedia('(min-width: 1024px)');
+    const syncState = () => setInteractiveEnabled(mediaQuery.matches);
+    syncState();
 
-      gsap.fromTo(
-        badge,
-        { opacity: 0, scale: 0.84, y: 28, filter: 'blur(10px)' },
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          filter: 'blur(0px)',
-          duration: 1.05,
-          ease: 'power3.out',
-        }
-      );
+    mediaQuery.addEventListener('change', syncState);
+    return () => mediaQuery.removeEventListener('change', syncState);
+  }, [shouldReduceMotion]);
 
-      gsap.to(badgeGlow, {
-        scale: 1.18,
-        opacity: 0.82,
-        duration: 2.4,
-        ease: 'sine.inOut',
-        repeat: -1,
-        yoyo: true,
-      });
+  const handleShowcaseMove = (event) => {
+    if (!interactiveEnabled || !showcaseRef.current) {
+      return;
+    }
 
-      gsap.to(badgeLight, {
-        rotation: 360,
-        duration: 16,
-        ease: 'none',
-        repeat: -1,
-      });
+    const rect = showcaseRef.current.getBoundingClientRect();
+    const relativeX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const relativeY = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+    const maxTilt = sonicMode ? 10 : 7.5;
 
-      const moveX = gsap.quickTo(badge, 'x', { duration: 0.55, ease: 'power3.out' });
-      const moveY = gsap.quickTo(badge, 'y', { duration: 0.55, ease: 'power3.out' });
-      const tiltX = gsap.quickTo(badge, 'rotationX', { duration: 0.5, ease: 'power3.out' });
-      const tiltY = gsap.quickTo(badge, 'rotationY', { duration: 0.5, ease: 'power3.out' });
-      const scaleTo = gsap.quickTo(badge, 'scale', { duration: 0.45, ease: 'power2.out' });
-      const glowX = gsap.quickTo(badgeGlow, 'x', { duration: 0.5, ease: 'power3.out' });
-      const glowY = gsap.quickTo(badgeGlow, 'y', { duration: 0.5, ease: 'power3.out' });
-      const lightX = gsap.quickTo(badgeLight, 'x', { duration: 0.42, ease: 'power3.out' });
-      const lightY = gsap.quickTo(badgeLight, 'y', { duration: 0.42, ease: 'power3.out' });
-      const lightOpacity = gsap.quickTo(badgeLight, 'opacity', { duration: 0.38, ease: 'power2.out' });
-
-      const handlePointerMove = (event) => {
-        const rect = section.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width;
-        const y = (event.clientY - rect.top) / rect.height;
-        const centerX = (x - 0.5) * 42;
-        const centerY = (y - 0.5) * 30;
-
-        moveX(centerX);
-        moveY(centerY);
-        tiltX((0.5 - y) * 22);
-        tiltY((x - 0.5) * 28);
-        scaleTo(1.04);
-        glowX(centerX * 0.9);
-        glowY(centerY * 0.9);
-        lightX(centerX * 1.2);
-        lightY(centerY * 1.2);
-        lightOpacity(0.92);
-      };
-
-      const resetPointer = () => {
-        moveX(0);
-        moveY(0);
-        tiltX(0);
-        tiltY(0);
-        scaleTo(1);
-        glowX(0);
-        glowY(0);
-        lightX(0);
-        lightY(0);
-        lightOpacity(0.55);
-      };
-
-      const handleScroll = () => {
-        const offset = Math.min(window.scrollY * 0.12, 72);
-        gsap.to(badge, {
-          y: offset,
-          duration: 0.8,
-          ease: 'power2.out',
-          overwrite: 'auto',
-        });
-      };
-
-      section.addEventListener('mousemove', handlePointerMove);
-      section.addEventListener('mouseleave', resetPointer);
-      window.addEventListener('scroll', handleScroll, { passive: true });
-
-      return () => {
-        section.removeEventListener('mousemove', handlePointerMove);
-        section.removeEventListener('mouseleave', resetPointer);
-        window.removeEventListener('scroll', handleScroll);
-      };
-    }, section);
-
-    return () => ctx.revert();
-  }, []);
-
-  const handleMouseMove = (event) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
-    const centeredX = x - 0.5;
-    const centeredY = y - 0.5;
-
-    rotateY.set(centeredX * 14);
-    rotateX.set(centeredY * -12);
-    pointerX.set(x * 100);
-    pointerY.set(y * 100);
+    tiltY.set(Math.max(-maxTilt, Math.min(maxTilt, relativeX * maxTilt)));
+    tiltX.set(Math.max(-maxTilt, Math.min(maxTilt, relativeY * -maxTilt)));
+    lightX.set(((event.clientX - rect.left) / rect.width) * 100);
+    lightY.set(((event.clientY - rect.top) / rect.height) * 100);
+    imageDriftX.set(relativeX * (sonicMode ? 16 : 10));
+    imageDriftY.set(relativeY * (sonicMode ? 12 : 8));
   };
 
-  const resetMouse = () => {
-    rotateX.set(0);
-    rotateY.set(0);
-    pointerX.set(50);
-    pointerY.set(50);
+  const resetShowcaseTilt = () => {
+    tiltX.set(0);
+    tiltY.set(0);
+    lightX.set(50);
+    lightY.set(42);
+    imageDriftX.set(0);
+    imageDriftY.set(0);
+  };
+
+  const handleShowcaseToggle = () => {
+    setSonicMode((current) => !current);
+
+    if (shouldReduceMotion) {
+      return;
+    }
+
+    burstControls.stop();
+    void burstControls.start({
+      rotateY: [0, 16, -10, 0],
+      rotateX: [0, -12, 8, 0],
+      rotateZ: [0, -4, 2, 0],
+      y: [0, -10, 2, 0],
+      scale: [1, 1.05, 0.98, 1],
+      transition: {
+        duration: 0.9,
+        times: [0, 0.28, 0.68, 1],
+        ease: [0.22, 1, 0.36, 1],
+      },
+    });
   };
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-dark-400"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={resetMouse}
-    >
-      <video
-        className="absolute inset-0 h-full w-full object-cover object-center"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        style={{ filter: 'contrast(1.18) saturate(1.16) brightness(0.86)' }}
-      >
-        <source src="/hero-gadget-video.mp4" type="video/mp4" />
-      </video>
-
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,6,12,0.18)_0%,rgba(3,6,12,0.42)_52%,rgba(5,7,15,0.76)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(59,130,246,0.18),transparent_20%),radial-gradient(circle_at_82%_22%,rgba(236,72,153,0.14),transparent_18%),radial-gradient(circle_at_50%_82%,rgba(34,211,238,0.1),transparent_24%)]" />
-      <motion.div className="pointer-events-none absolute inset-0" style={{ backgroundImage: spotlight }} />
-
-      <div
-        className="absolute inset-0 opacity-[0.05]"
+    <section className="relative overflow-hidden bg-[#f5f7fb] text-[#0f172a]">
+      <motion.div
+        className="absolute inset-0"
+        animate={shouldReduceMotion ? undefined : { opacity: sonicMode ? 1 : 0.95 }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
         style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
+          background: sonicMode
+            ? 'radial-gradient(circle at 76% 24%, rgba(96,165,250,0.28), transparent 20%), radial-gradient(circle at 20% 18%, rgba(255,255,255,0.8), transparent 20%), linear-gradient(180deg, #f7f9fd 0%, #eef3fa 52%, #e6edf6 100%)'
+            : 'radial-gradient(circle at 82% 18%, rgba(86,166,255,0.2), transparent 18%), radial-gradient(circle at 18% 18%, rgba(255,255,255,0.8), transparent 22%), linear-gradient(180deg, #f7f9fd 0%, #eff3f9 52%, #e7edf6 100%)',
         }}
       />
+      <div className="absolute left-[-5rem] top-16 h-56 w-56 rounded-full bg-white/90 blur-[96px]" />
+      <motion.div
+        className="absolute right-[-7rem] top-6 h-72 w-72 rounded-full blur-[120px]"
+        animate={shouldReduceMotion ? undefined : {
+          scale: sonicMode ? [1, 1.16, 1] : [1, 1.06, 1],
+          opacity: sonicMode ? [0.18, 0.34, 0.18] : [0.1, 0.2, 0.1],
+        }}
+        transition={shouldReduceMotion ? undefined : {
+          duration: sonicMode ? 2.8 : 4.8,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+        style={{ backgroundColor: 'rgba(86, 166, 255, 0.2)' }}
+      />
 
-      {floatingProducts.map((product, index) => (
+      <div className="relative z-10 mx-auto grid min-h-screen max-w-7xl items-center gap-12 px-6 pb-16 pt-28 md:px-10 lg:grid-cols-[minmax(0,0.58fr)_minmax(0,0.42fr)] lg:gap-14 lg:px-12 xl:gap-20">
         <motion.div
-          key={product.name}
-          initial={{ opacity: 0, scale: 0.84 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: product.delay + 0.5, duration: 0.55 }}
-          className="absolute z-[2] hidden xl:block"
-          style={{
-            top: product.top,
-            left: product.left,
-            right: product.right,
-            bottom: product.bottom,
-            x: index % 2 === 0 ? shallowLayerX : deepLayerX,
-            y: index % 2 === 0 ? shallowLayerY : deepLayerY,
-          }}
+          initial="hidden"
+          animate="visible"
+          variants={revealGroup}
+          className="max-w-[38rem]"
         >
-          <motion.div
-            animate={{ y: [0, -16, 0] }}
-            transition={{
-              duration: 4.2 + index,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: product.delay,
-            }}
-            className="w-44 rounded-2xl border border-white/12 bg-slate-950/42 p-3 backdrop-blur-xl shadow-[0_24px_70px_rgba(0,0,0,0.38)]"
-          >
-            <img
-              src={product.img}
-              alt={product.name}
-              className="mb-2 h-28 w-full rounded-xl object-cover"
-            />
-            <p className="truncate text-xs font-semibold text-white">{product.name}</p>
-            <p className="text-sm font-bold text-cyan-300">{product.price}</p>
+          <motion.div variants={revealItem} className="mb-8 inline-flex items-center gap-3 rounded-full border border-[rgba(86,166,255,0.14)] bg-white/58 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#315dff] shadow-[0_16px_34px_rgba(15,23,42,0.06)] backdrop-blur-xl">
+            <span className="h-2 w-2 rounded-full bg-[#56a6ff]" />
+            Luxury electronics atelier
+          </motion.div>
+
+          <motion.div variants={revealItem}>
+            <div className="mb-5 h-px w-24 bg-[linear-gradient(90deg,rgba(49,93,255,0),rgba(49,93,255,0.7),rgba(49,93,255,0))]" />
+            <h1 className="font-display text-[clamp(3.9rem,11vw,7.2rem)] font-semibold uppercase leading-[0.84] tracking-[0.1em] text-[#08101d] [text-shadow:0_16px_40px_rgba(15,23,42,0.06)]">
+              Gadget69
+            </h1>
+          </motion.div>
+
+          <motion.div variants={revealItem} className="mt-7 space-y-4">
+            <p className="text-sm font-semibold uppercase tracking-[0.34em] text-[#64748b]">
+              Precision hardware. Quiet confidence.
+            </p>
+            <p className="max-w-[32rem] text-[1.05rem] leading-8 text-[#475569] md:text-[1.16rem]">
+              A restrained luxury-tech storefront with glass surfaces, studio-lit product drama, and the kind of calm interaction design that lets the object do the talking.
+            </p>
+          </motion.div>
+
+          <motion.div variants={revealItem} className="mt-7 flex flex-wrap items-center gap-4 text-[11px] font-semibold uppercase tracking-[0.28em]">
+            <span className="inline-flex items-center gap-2 text-[#0f172a]/70">
+              <span className="h-2 w-2 rounded-full bg-[#56a6ff]" />
+              Spatial feel
+            </span>
+            <span className="h-8 w-px bg-slate-300/70" />
+            <span className="text-[#0f172a]/70">
+              {sonicMode ? 'Immersion mode active' : 'Move your cursor across the product'}
+            </span>
+          </motion.div>
+
+          <motion.div variants={revealItem} className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <a href="#products" className="btn-primary group min-w-[220px]">
+              Explore Collection
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </a>
+            <a href="#offers" className="btn-ghost group min-w-[220px]">
+              View Premium Picks
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </a>
           </motion.div>
         </motion.div>
-      ))}
 
-      <div className="pointer-events-none absolute left-1/2 top-1/2 z-[5]">
-        <div
-          ref={badgeGlowRef}
-          className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-300/18 blur-[70px]"
-        />
-        <div
-          ref={badgeRef}
-          className="absolute left-1/2 top-1/2 w-[min(46vw,280px)] overflow-hidden rounded-[1.75rem] border border-white/16 bg-slate-950/34 px-6 py-5 text-center shadow-[0_30px_80px_rgba(0,0,0,0.42)] backdrop-blur-xl"
-        >
-          <div className="absolute inset-[1px] rounded-[1.6rem] bg-[linear-gradient(145deg,rgba(15,23,42,0.68),rgba(2,6,23,0.2),rgba(8,47,73,0.45))]" />
-          <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.08),transparent_28%,transparent_72%,rgba(103,232,249,0.12))]" />
-          <div
-            ref={badgeLightRef}
-            className="absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(103,232,249,0.32),rgba(125,211,252,0.08)_42%,transparent_72%)] opacity-55 blur-2xl"
-          />
-          <div className="relative">
-            <div className="mx-auto mb-3 h-px w-16 bg-gradient-to-r from-transparent via-cyan-300/80 to-transparent" />
-            <p className="font-display text-[clamp(1.3rem,3vw,2.05rem)] font-black tracking-[0.34em] text-white">
-              Gadget_69
-            </p>
-            <p className="mt-2 text-[0.62rem] font-semibold uppercase tracking-[0.42em] text-cyan-300/78">
-              immersive motion
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <motion.div
-        className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-[64vh] text-center md:px-8"
-        style={{
-          rotateX: smoothRotateX,
-          rotateY: smoothRotateY,
-          transformPerspective: 1400,
-        }}
-      >
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-8 flex flex-wrap items-center justify-center gap-4"
+          transition={{ duration: 0.8, delay: 0.14, ease: 'easeOut' }}
+          className="relative flex justify-center lg:justify-self-end lg:pr-6 xl:pr-10"
         >
-          <Link to="/products" className="btn-primary flex items-center gap-2 px-8 py-4 text-base">
-            Explore Collection
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </motion.div>
+          <motion.button
+            type="button"
+            ref={showcaseRef}
+            onClick={handleShowcaseToggle}
+            onMouseMove={handleShowcaseMove}
+            onMouseLeave={resetShowcaseTilt}
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.988 }}
+            animate={shouldReduceMotion ? undefined : { y: [0, -10, 0] }}
+            transition={shouldReduceMotion ? undefined : {
+              duration: sonicMode ? 3 : 4.8,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            style={interactiveEnabled ? {
+              rotateX: springTiltX,
+              rotateY: springTiltY,
+              transformPerspective: 1400,
+            } : undefined}
+            className="group relative block w-[210px] max-w-full bg-transparent text-left isolate [transform-style:preserve-3d] sm:w-[250px] md:w-[300px] lg:w-[340px] xl:w-[390px]"
+            aria-label="Toggle premium product showcase mode"
+          >
+            <motion.div
+              className="absolute inset-[-8%] rounded-[38%] blur-[70px]"
+              animate={shouldReduceMotion ? undefined : {
+                opacity: sonicMode ? [0.2, 0.34, 0.2] : [0.12, 0.2, 0.12],
+                scale: sonicMode ? [0.96, 1.08, 0.96] : [1, 1.04, 1],
+              }}
+              transition={shouldReduceMotion ? undefined : {
+                duration: sonicMode ? 2.4 : 4.2,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              style={{
+                background: 'radial-gradient(circle, rgba(59,130,246,0.24) 0%, rgba(14,165,233,0.16) 38%, rgba(255,255,255,0.02) 78%, transparent 100%)',
+              }}
+            />
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.42 }}
-          className="mt-10 flex flex-wrap items-center justify-center gap-3 md:gap-5"
-        >
-          {trustBadges.map(({ icon: Icon, label }) => (
-            <div
-              key={label}
-              className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/36 px-4 py-2 text-sm text-white/72 backdrop-blur-md"
+            <motion.div
+              className="absolute inset-[-4%] z-0 rounded-[36%] blur-[64px]"
+              style={{ background: cursorHalo }}
+            />
+
+            <motion.div
+              className="absolute inset-x-[12%] bottom-4 h-12 rounded-full bg-[#0f172a]/16 blur-3xl"
+              animate={shouldReduceMotion ? undefined : {
+                scaleX: sonicMode ? [1, 0.88, 1] : [1, 0.94, 1],
+                opacity: sonicMode ? [0.18, 0.3, 0.18] : [0.1, 0.16, 0.1],
+              }}
+              transition={shouldReduceMotion ? undefined : {
+                duration: sonicMode ? 2.2 : 4,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            />
+
+            <motion.div
+              className="absolute right-4 top-4 z-30 rounded-full border border-[rgba(125,211,252,0.28)] bg-[rgba(255,255,255,0.68)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#0f172a] shadow-[0_18px_34px_rgba(15,23,42,0.08),0_0_22px_rgba(125,211,252,0.16)] backdrop-blur-xl"
+              animate={shouldReduceMotion ? undefined : { y: [0, -4, 0] }}
+              transition={shouldReduceMotion ? undefined : {
+                duration: 2.6,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
             >
-              <Icon className="h-3.5 w-3.5 text-cyan-300" />
-              <span className="font-medium">{label}</span>
-            </div>
-          ))}
-        </motion.div>
-      </motion.div>
+              {sonicMode ? 'Immersion on' : 'Interactive object'}
+            </motion.div>
 
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-dark-400 to-transparent" />
+            <div className="relative aspect-[9/10] w-full">
+              <motion.div
+                className="absolute inset-[10%] rounded-[2.6rem] border border-white/60 bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(255,255,255,0.08)_100%)] shadow-[0_28px_70px_rgba(15,23,42,0.1)] backdrop-blur-[28px]"
+                animate={shouldReduceMotion ? undefined : {
+                  borderColor: sonicMode ? ['rgba(255,255,255,0.6)', 'rgba(125,211,252,0.56)', 'rgba(255,255,255,0.6)'] : undefined,
+                }}
+                transition={shouldReduceMotion ? undefined : {
+                  duration: 2.8,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+              />
+
+              {!assetLoaded ? (
+                <motion.div
+                  aria-hidden
+                  className="absolute inset-[13%] rounded-[2.3rem] border border-white/60 bg-[linear-gradient(120deg,rgba(255,255,255,0.54)_0%,rgba(233,240,250,0.92)_50%,rgba(255,255,255,0.5)_100%)] shadow-[0_22px_48px_rgba(15,23,42,0.08)] backdrop-blur-xl"
+                  animate={shouldReduceMotion ? undefined : { opacity: [0.42, 0.72, 0.42] }}
+                  transition={shouldReduceMotion ? undefined : {
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                />
+              ) : null}
+
+              <motion.div
+                animate={burstControls}
+                initial={false}
+                className="relative z-20 h-full w-full [transform-style:preserve-3d]"
+              >
+                <motion.div
+                  aria-hidden
+                  initial={false}
+                  animate={assetLoaded ? {
+                    opacity: sonicMode ? 0.42 : 0.22,
+                    scale: sonicMode ? 1.04 : 0.99,
+                    x: sonicMode ? 10 : 4,
+                    y: sonicMode ? 8 : 12,
+                  } : {
+                    opacity: 0,
+                    scale: 0.92,
+                    x: 0,
+                    y: 0,
+                  }}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                  className="absolute inset-[10%] z-0"
+                  style={{ x: springImageX, y: springImageY }}
+                >
+                  <img
+                    src={HEADPHONES_IMAGE}
+                    alt=""
+                    className="h-full w-full object-contain opacity-80"
+                    style={{ filter: 'blur(24px) saturate(1.28) brightness(1.04)' }}
+                  />
+                </motion.div>
+
+                <motion.div
+                  aria-hidden
+                  className="absolute left-[18%] top-[24%] z-10 h-24 w-24 rounded-full blur-3xl"
+                  animate={shouldReduceMotion ? undefined : {
+                    opacity: sonicMode ? [0.2, 0.38, 0.2] : [0.12, 0.2, 0.12],
+                    scale: sonicMode ? [0.9, 1.18, 0.9] : [0.96, 1.06, 0.96],
+                  }}
+                  transition={shouldReduceMotion ? undefined : {
+                    duration: sonicMode ? 1.8 : 3.2,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  style={{ background: 'rgba(96, 165, 250, 0.42)' }}
+                />
+
+                <motion.div
+                  aria-hidden
+                  className="absolute bottom-[20%] right-[16%] z-10 h-20 w-20 rounded-full blur-3xl"
+                  animate={shouldReduceMotion ? undefined : {
+                    opacity: sonicMode ? [0.16, 0.3, 0.16] : [0.1, 0.18, 0.1],
+                    scale: sonicMode ? [0.9, 1.12, 0.9] : [0.96, 1.04, 0.96],
+                  }}
+                  transition={shouldReduceMotion ? undefined : {
+                    duration: sonicMode ? 2.1 : 3.8,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  style={{ background: 'rgba(125, 211, 252, 0.34)' }}
+                />
+
+                <motion.div
+                  initial={false}
+                  animate={assetLoaded ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.94, y: 10 }}
+                  transition={{ duration: 0.65, ease: 'easeOut' }}
+                  className="h-full w-full"
+                  style={{ x: springImageX, y: springImageY }}
+                >
+                  <motion.img
+                    src={HEADPHONES_IMAGE}
+                    alt="Gadget69 hero headphones presented as a premium studio-lit product object"
+                    loading="eager"
+                    fetchPriority="high"
+                    onLoad={() => setAssetLoaded(true)}
+                    onError={() => setAssetLoaded(true)}
+                    className="pointer-events-none block h-full w-full object-contain"
+                    animate={shouldReduceMotion ? undefined : {
+                      y: sonicMode ? [0, -4, 0] : [0, -6, 0],
+                      rotateZ: sonicMode ? [0, 1.2, 0, -1.2, 0] : [0, 0.8, 0, -0.8, 0],
+                    }}
+                    transition={shouldReduceMotion ? undefined : {
+                      duration: sonicMode ? 3.6 : 5.2,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                    style={{
+                      filter: sonicMode
+                        ? 'drop-shadow(0 40px 54px rgba(15,23,42,0.22)) drop-shadow(0 0 32px rgba(86,166,255,0.2))'
+                        : 'drop-shadow(0 34px 48px rgba(15,23,42,0.18)) drop-shadow(0 0 20px rgba(86,166,255,0.12))',
+                    }}
+                  />
+                </motion.div>
+              </motion.div>
+            </div>
+          </motion.button>
+        </motion.div>
+      </div>
     </section>
   );
 };

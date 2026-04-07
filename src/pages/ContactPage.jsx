@@ -1,102 +1,142 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
+import { CheckCircle, Mail, MapPin, Phone, Send } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 
 const ContactPage = () => {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (form.name && form.email && form.message) setSent(true);
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (form.name && form.email && form.message) {
+      setSent(true);
+    }
   };
 
   return (
-    <main className="min-h-screen bg-dark-400 pt-24">
+    <main className="page-shell">
       <section className="section-padding">
-        <div className="max-w-5xl mx-auto">
+        <div className="mx-auto max-w-6xl">
           <SectionHeader
             badge="Get in Touch"
             title="Contact"
             highlight="Us"
-            subtitle="Have a question or feedback? We'd love to hear from you."
+            subtitle="Questions, order help, or premium product support. The Gadget69 team is here to help with the same care reflected in the storefront."
+            tone="light"
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* Contact Info */}
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="space-y-5">
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="anchor-panel p-6"
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-brand-300">
+                  Premium support
+                </p>
+                <p className="mt-4 text-sm leading-relaxed text-white/68">
+                  Reach out for product advice, order updates, corporate gifting, or
+                  post-purchase care.
+                </p>
+              </motion.div>
+
               {[
-                { icon: Mail,    label: 'Email',    val: 'support@nexusgadgets.com' },
-                { icon: Phone,   label: 'Phone',    val: '+91 9876 543 210' },
-                { icon: MapPin,  label: 'Address',  val: 'Chennai, Tamil Nadu, India' },
-              ].map(({ icon: Icon, label, val }) => (
+                { icon: Mail, label: 'Email', val: 'concierge@gadget69.in' },
+                { icon: Phone, label: 'Phone', val: '+91 9876 543 210' },
+                { icon: MapPin, label: 'Address', val: 'Chennai, Tamil Nadu, India' },
+              ].map(({ icon: Icon, label, val }, index) => (
                 <motion.div
                   key={label}
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  className="flex items-center gap-4 glass rounded-2xl p-5 border border-white/5"
+                  transition={{ delay: index * 0.06 }}
+                  className="page-panel flex items-center gap-4 p-5"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20
-                                  flex items-center justify-center flex-none">
-                    <Icon className="w-5 h-5 text-brand-400" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-[1rem] bg-brand-50 text-brand-600">
+                    <Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-white/40 text-xs font-semibold uppercase tracking-wider">{label}</p>
-                    <p className="text-white font-medium">{val}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8a7f74]">
+                      {label}
+                    </p>
+                    <p className="mt-1 font-medium text-[#17110d]">{val}</p>
                   </div>
                 </motion.div>
               ))}
             </div>
 
-            {/* Form */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="glass rounded-3xl p-8 border border-white/5"
+              className="page-panel p-8"
             >
               {sent ? (
-                <div className="flex flex-col items-center justify-center h-full gap-4 py-12 text-center">
-                  <CheckCircle className="w-16 h-16 text-emerald-400" />
-                  <h3 className="font-display text-2xl font-bold text-white">Message Sent!</h3>
-                  <p className="text-white/50">We'll get back to you within 24 hours.</p>
+                <div className="flex h-full flex-col items-center justify-center gap-4 py-16 text-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+                    <CheckCircle className="h-8 w-8" />
+                  </div>
+                  <h3 className="font-display text-4xl text-[#17110d]">Message Sent</h3>
+                  <p className="max-w-sm text-[#6d635a]">
+                    We received your note and will get back to you within 24 hours.
+                  </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {[
-                    { key: 'name',    label: 'Your Name',    type: 'text',  placeholder: 'Arjun Mehta' },
-                    { key: 'email',   label: 'Email Address', type: 'email', placeholder: 'arjun@example.com' },
+                    {
+                      key: 'name',
+                      label: 'Your Name',
+                      type: 'text',
+                      placeholder: 'Arjun Mehta',
+                    },
+                    {
+                      key: 'email',
+                      label: 'Email Address',
+                      type: 'email',
+                      placeholder: 'arjun@example.com',
+                    },
                   ].map(({ key, label, type, placeholder }) => (
                     <div key={key}>
-                      <label className="text-white/60 text-sm font-medium mb-2 block">{label}</label>
+                      <label className="mb-2 block text-sm font-medium text-[#5f554b]">
+                        {label}
+                      </label>
                       <input
                         type={type}
                         value={form[key]}
-                        onChange={(e) => setForm(f => ({ ...f, [key]: e.target.value }))}
+                        onChange={(event) =>
+                          setForm((current) => ({ ...current, [key]: event.target.value }))
+                        }
                         placeholder={placeholder}
-                        className="w-full px-4 py-3 rounded-xl glass border border-white/10
-                                   text-white placeholder-white/30 text-sm
-                                   focus:outline-none focus:border-brand-500/50 transition-all"
+                        className="field-input"
                       />
                     </div>
                   ))}
+
                   <div>
-                    <label className="text-white/60 text-sm font-medium mb-2 block">Message</label>
+                    <label className="mb-2 block text-sm font-medium text-[#5f554b]">
+                      Message
+                    </label>
                     <textarea
-                      rows={5}
+                      rows={6}
                       value={form.message}
-                      onChange={(e) => setForm(f => ({ ...f, message: e.target.value }))}
+                      onChange={(event) =>
+                        setForm((current) => ({ ...current, message: event.target.value }))
+                      }
                       placeholder="Tell us how we can help..."
-                      className="w-full px-4 py-3 rounded-xl glass border border-white/10
-                                 text-white placeholder-white/30 text-sm resize-none
-                                 focus:outline-none focus:border-brand-500/50 transition-all"
+                      className="field-input resize-none"
                     />
                   </div>
-                  <button type="submit"
-                          className="w-full btn-primary flex items-center justify-center gap-2 py-3.5">
-                    <Send className="w-4 h-4" />
+
+                  <button
+                    type="submit"
+                    className="btn-primary flex w-full items-center justify-center gap-2 py-3.5"
+                  >
+                    <Send className="h-4 w-4" />
                     Send Message
                   </button>
                 </form>

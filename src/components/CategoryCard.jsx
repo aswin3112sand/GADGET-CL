@@ -1,104 +1,63 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const CategoryCard = ({ category, index }) => {
   const Icon = category.icon;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay: index * 0.08, duration: 0.5 }}
+      transition={{ delay: index * 0.06, duration: 0.5 }}
     >
       <Link to={`/category/${category.slug}`} className="block h-full">
         <motion.div
-          whileHover={{ y: -10, scale: 1.01 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-          className="group relative h-72 cursor-pointer overflow-hidden rounded-[2rem]
-                     border border-white/10 bg-[#090d16] transition-all duration-500"
-          style={{
-            backgroundImage: `radial-gradient(circle at top right, ${category.accent}24, transparent 34%), linear-gradient(180deg, rgba(8,11,18,0.98) 0%, rgba(10,15,24,0.92) 58%, rgba(7,10,16,0.98) 100%)`,
-            boxShadow: `0 0 0 0px ${category.glow}`,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = `0 20px 60px ${category.glow}, 0 0 40px ${category.glow}40`;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = `0 0 0 0px ${category.glow}`;
-          }}
+          whileHover={{ y: -8 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+          className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-[rgba(34,24,17,0.08)] bg-[linear-gradient(180deg,rgba(255,252,247,0.94)_0%,rgba(252,246,239,0.88)_100%)] shadow-[0_22px_48px_rgba(23,17,13,0.07)]"
         >
-          <div
-            className="absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-125"
-            style={{ backgroundColor: category.accent }}
-          />
-          <div
-            className="absolute inset-0 opacity-[0.14]"
-            style={{
-              backgroundImage: 'linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)',
-              backgroundSize: '28px 28px',
-            }}
-          />
-          <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-10 transition-opacity duration-500 group-hover:opacity-20`} />
-          <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-[2rem] border-b border-l border-white/10 bg-white/[0.03]" />
+          <div className="relative h-44 overflow-hidden">
+            <img
+              src={category.bg}
+              alt={category.name}
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,17,13,0.08)_0%,rgba(23,17,13,0.54)_100%)]" />
+            <div className="absolute left-5 top-5 rounded-full border border-white/18 bg-white/14 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-white backdrop-blur-sm">
+              Curated Category
+            </div>
+            <div className="absolute bottom-5 left-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/88 text-brand-600 shadow-[0_16px_34px_rgba(23,17,13,0.16)]">
+              <Icon className="h-6 w-6" />
+            </div>
+          </div>
 
-          <img
-            src={category.bg}
-            alt={category.name}
-            className="absolute inset-0 h-full w-full object-cover opacity-10 mix-blend-screen transition-all duration-700 group-hover:scale-110 group-hover:opacity-25"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/35 to-slate-950/95" />
-
-          <div className="relative z-10 flex h-full flex-col justify-between p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div
-                className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${category.gradient} shadow-lg transition-transform duration-300 group-hover:scale-110`}
-                style={{ boxShadow: `0 8px 20px ${category.glow}` }}
-              >
-                <Icon className="h-6 w-6 text-white" />
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                <span
-                  className="rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em]"
-                  style={{
-                    color: category.accent,
-                    borderColor: `${category.accent}55`,
-                    backgroundColor: `${category.accent}14`,
-                  }}
-                >
-                  {category.theme}
+          <div className="flex flex-1 flex-col justify-between p-6">
+            <div>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <span className="inline-flex items-center rounded-full border border-brand-500/18 bg-brand-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-600">
+                  Gadget69
                 </span>
-                <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium text-white/70">
+                <span className="text-xs font-medium text-[#6d635a]">
                   {category.count} products
                 </span>
               </div>
-            </div>
 
-            <div>
-              <p
-                className="mb-3 text-[11px] font-semibold uppercase tracking-[0.34em]"
-                style={{ color: category.accent }}
-              >
-                Nexus Edit
-              </p>
-              <h3 className="mb-2 font-display text-2xl font-bold text-white">
+              <h3 className="font-display text-3xl leading-tight text-[#17110d]">
                 {category.name}
               </h3>
-              <p className="max-w-[15rem] text-sm leading-relaxed text-white/60">
+              <p className="mt-3 text-sm leading-relaxed text-[#5f554b]">
                 {category.description}
               </p>
             </div>
 
-            <div className="flex items-center justify-between border-t border-white/10 pt-4">
-              <div className="flex items-center gap-2 text-xs font-medium text-white/55">
-                <Sparkles className="h-3.5 w-3.5" style={{ color: category.accent }} />
-                Curated collection
-              </div>
-              <div className="flex items-center gap-1 text-sm font-semibold text-white/75 transition-colors duration-300 group-hover:text-white">
+            <div className="mt-6 flex items-center justify-between border-t border-[rgba(34,24,17,0.08)] pt-4 text-sm font-semibold text-[#17110d]">
+              <span className="text-[#6d635a]">Editorial collection</span>
+              <span className="inline-flex items-center gap-1 text-brand-600">
                 Explore
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </div>
+              </span>
             </div>
           </div>
         </motion.div>
